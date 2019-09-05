@@ -1,11 +1,16 @@
 ---
-- name: Устанавливаем NGINX filebeat
-  hosts:
-    - web
-  gather_facts: yes
-  remote_user: vagrant
-  become: true
+- hosts: web
+  become: yes
+  tasks:
+  - name: Устанавливаем Mutt
+    yum:
+      name:
+        mutt
 
-  roles:
-    - filebeat
-    - nginx
+  - name: Отправляем письмо
+    mail:
+      host: 172.20.10.50
+      port: 25
+      to: Vagrant Otus <vagrant@otus.local>
+      subject: Тестовое Письмо
+      body: System {{ ansible_hostname }} отправила вам письмо.

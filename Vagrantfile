@@ -32,11 +32,9 @@ Vagrant.configure("2") do |config|
         vb.memory = boxconfig[:memory]
         end
       box.vm.provision "shell", path: boxconfig[:shell]
-      #box.vm.provision "ansible_local" do |ansible|
-        #ansible.playbook = boxconfig[:ansible]
-        #ansible.inventory_path = "hosts"
-        #box.vm.provision "shell", path: "shell.sh"
-        #end
+      box.vm.provision "ansible_local" do |ansible|
+        ansible.playbook = boxconfig[:ansible]
+        end
     end
   end
 end

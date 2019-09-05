@@ -1,10 +1,112 @@
 ---
-- name: Устанавливаем ELK stack
-  hosts:
-    - elk
-  gather_facts: no
-  remote_user: vagrant
-  become: true
+- hosts: server
+  become: yes
+  tasks:
+  - name: install Postfix
+    yum:
+      name:
+        postfix
 
-  roles:
-    - elkserver
+  - name: Copy main.cf
+    copy:
+      src: main.cf
+      dest: /etc/postfix/main.cf
+
+  - name: Copy hosts
+    copy:
+      src: hosts
+      dest: /etc/hosts
+
+  - name: ensure Postfix is started and runs at startup
+    service:
+      name: postfix
+      state: started
+      enabled: yes
+
+  # - name: configure Postfix (main.cf)
+  #   template:
+  #     src: etc/postfix/main.cf.j2
+  #     dest: /etc/postfix/main.cf
+  #     owner: root
+  #     group: root
+  #     mode: 0644
+  #   notify: restart postfix
+
+  # - name: configure Postfix (master.cf)
+  #   template:
+  #     src: etc/postfix/master.cf.j2
+  #     dest: /etc/postfix/master.cf
+  #     owner: root
+  #     group: root
+  #     mode: 0644
+  #   notify: restart postfix
+
+  - name: install Dovecot
+    yum:
+      name:
+        dovecot
+
+  - name: create vmail group
+    group:
+      name: vmail
+      gid: 5000
+
+  - name: create vmail user
+    user:
+      name: vmail
+      group: vmail
+      uid: 5000
+      home: /var/mail
+
+  - name: set secure permissions and ownership on /etc/dovecot
+    file:
+      path: /etc/dovecot
+      state: directory
+      owner: vmail
+      group: dovecot
+      mode: o-rwx
+
+  - name: create /var/mail/vhosts
+    file:
+      path: /var/mail/vhosts
+      state: directory
+      owner: vmail
+      group: vmail
+
+  - name: ensure Dovecot is started and runs at startup
+    service:
+      name: dovecot
+      state: started
+      enabled: yes
+
+  # - name: configure Dovecot (dovecot.conf)
+  #   template:
+  #     src: etc/dovecot/dovecot.conf.j2
+  #     dest: /etc/dovecot/dovecot.conf
+  #     owner: vmail
+  #     group: dovecot
+  #     mode: 0440
+
+  # - name: configure Dovecot (10-mail.conf)
+  #   template:
+  #     src: etc/dovecot/conf.d/10-mail.conf.j2
+  #     dest: /etc/dovecot/conf.d/10-mail.conf
+  #     owner: vmail
+  #     group: dovecot
+  #     mode: 0440
+
+  # - name: configure Dovecot (10-auth.conf)
+  #   template:
+  #     src: etc/dovecot/conf.d/10-auth.conf.j2
+  #     dest: /etc/dovecot/conf.d/10-auth.conf
+  #     owner: vmail
+  #     group: dovecot
+  #     mode: 0440
+
+  # - name: configure Dovecot (10-master.conf)
+  #   template:
+  #     src: etc/dovecot/conf.d/10-master.conf.j2
+  #     dest: /etc/dovecot/conf.d/10-master.conf
+  #     owner: vmail
+  #     group: dovecot
+  #     mode: 0440
