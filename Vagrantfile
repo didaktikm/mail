@@ -20,7 +20,7 @@ MACHINES = {
 }
 
 Vagrant.configure("2") do |config|
-
+  config.vm.network "forwarded_port", guest: 110, host: 111
   MACHINES.each do |boxname, boxconfig|
 
     config.vm.define boxname do |box|
