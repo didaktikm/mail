@@ -20,7 +20,7 @@
   - name: ensure Postfix is started and runs at startup
     service:
       name: postfix
-      state: started
+      state: restarted
       enabled: yes
 
   # - name: configure Postfix (main.cf)
